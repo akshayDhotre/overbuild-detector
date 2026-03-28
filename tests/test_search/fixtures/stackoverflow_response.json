@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "title": "How to rate limit FastAPI endpoints?",
+      "link": "https://stackoverflow.com/questions/12345",
+      "score": 42,
+      "answer_count": 5,
+      "creation_date": 1700000000,
+      "last_activity_date": 1700000200
+    }
+  ]
+}
+

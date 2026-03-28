@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "full_name": "laurentS/slowapi",
+      "name": "slowapi",
+      "description": "Rate limiter for FastAPI",
+      "html_url": "https://github.com/laurentS/slowapi",
+      "stargazers_count": 3000,
+      "updated_at": "2026-02-01T00:00:00Z",
+      "license": { "spdx_id": "MIT" },
+      "language": "Python"
+    }
+  ]
+}
+

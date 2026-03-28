@@ -1,0 +1,15 @@
+[
+  {
+    "name": "slowapi",
+    "description": "Rate limiting for FastAPI applications",
+    "repository_url": "https://github.com/laurentS/slowapi",
+    "homepage": "https://pypi.org/project/slowapi",
+    "stars": 3500,
+    "dependents_count": 120,
+    "latest_release_published_at": "2026-01-01T00:00:00Z",
+    "licenses": ["MIT"],
+    "language": "Python",
+    "platform": "pypi"
+  }
+]
+

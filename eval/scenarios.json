@@ -1,0 +1,87 @@
+[
+  {
+    "name": "The 82K-line cleanup daemon",
+    "problem": "I need a tool that watches my Rust project directories and deletes build artifacts (target/ folders) older than 7 days to free disk space",
+    "language": "rust",
+    "expected_verdict": "JUST_USE_A_ONE_LINER",
+    "notes": "cargo-sweep exists. find + cron solves it."
+  },
+  {
+    "name": "Python rate limiter",
+    "problem": "I need to add rate limiting to my FastAPI endpoints, 100 requests per minute per IP address",
+    "language": "python",
+    "expected_verdict": "USE_EXISTING",
+    "notes": "slowapi, fastapi-limiter, etc."
+  },
+  {
+    "name": "File watcher for tests",
+    "problem": "Create a tool that watches a directory for file changes and automatically runs my test suite when Python files change",
+    "language": "python",
+    "expected_verdict": "USE_EXISTING",
+    "notes": "watchdog, pytest-watch."
+  },
+  {
+    "name": "Custom JSON logger",
+    "problem": "Build a structured JSON logging library for Python with log levels, timestamps, and context fields",
+    "language": "python",
+    "expected_verdict": "USE_EXISTING",
+    "notes": "structlog, python-json-logger."
+  },
+  {
+    "name": "Git hooks manager",
+    "problem": "Build a tool to manage and share git hooks across a team, with support for running linters and tests before commit",
+    "language": "python",
+    "expected_verdict": "USE_EXISTING",
+    "notes": "pre-commit."
+  },
+  {
+    "name": "Environment variable loader",
+    "problem": "I need a library that loads environment variables from .env files with type validation and default values",
+    "language": "python",
+    "expected_verdict": "USE_EXISTING",
+    "notes": "python-dotenv + pydantic-settings."
+  },
+  {
+    "name": "CSV to JSON converter",
+    "problem": "Convert CSV files to JSON format with custom column mapping and data type inference",
+    "language": "python",
+    "expected_verdict": "JUST_USE_A_ONE_LINER",
+    "notes": "pandas one-liner."
+  },
+  {
+    "name": "Retry with backoff",
+    "problem": "Implement retry logic with exponential backoff for HTTP requests that fail with transient errors",
+    "language": "python",
+    "expected_verdict": "USE_EXISTING",
+    "notes": "tenacity, backoff."
+  },
+  {
+    "name": "Healthcare rule engine",
+    "problem": "Build a domain-specific rule engine that evaluates healthcare prior authorization requests against insurance policy criteria with full audit trails, explainability, and regulatory compliance logging",
+    "language": "python",
+    "expected_verdict": "BUILD_CUSTOM",
+    "notes": "Domain specific."
+  },
+  {
+    "name": "Custom ML training pipeline",
+    "problem": "Build a training pipeline for a proprietary medical document classification model that handles PHI data with differential privacy, custom tokenization for medical terminology, and HIPAA-compliant logging",
+    "language": "python",
+    "expected_verdict": "BUILD_CUSTOM",
+    "notes": "Domain constrained."
+  },
+  {
+    "name": "Markdown to HTML",
+    "problem": "Convert markdown files to styled HTML with syntax highlighting, table of contents, and custom themes",
+    "language": "python",
+    "expected_verdict": "USE_EXISTING",
+    "notes": "markdown/pandoc tooling."
+  },
+  {
+    "name": "Docker container cleanup",
+    "problem": "Automatically remove stopped Docker containers and dangling images older than 48 hours",
+    "language": "bash",
+    "expected_verdict": "JUST_USE_A_ONE_LINER",
+    "notes": "docker system prune --filter 'until=48h'."
+  }
+]
+
