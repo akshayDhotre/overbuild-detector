@@ -2,7 +2,7 @@
 FROM python:3.12-slim AS builder
 
 WORKDIR /app
-RUN pip install --no-cache-dir uv
+RUN pip install --no-cache-dir --root-user-action=ignore uv
 COPY pyproject.toml README.md ./
 COPY src ./src
 RUN uv pip install --system --no-cache .

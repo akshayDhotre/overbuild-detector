@@ -6,6 +6,17 @@ from overbuild.api.models import ParsedIntent
 from overbuild.core.llm import call_llm_json, extract_json_payload, has_llm_config
 
 PARSE_SYSTEM_PROMPT = """You are an expert software engineer analyzing a problem description.
+
+First, assess whether the problem is too vague to analyze reliably. A problem is ambiguous when:
+- It is a single generic word or phrase with no specific action (e.g. "authentication", "data management")
+- It lacks any indication of what inputs, outputs, or behavior are expected
+- It is impossible to determine what a solution would actually do
+
+If ambiguous, set "is_ambiguous" to true and populate "clarifying_questions" with 2-4 specific questions
+that would give you enough detail to proceed. Keep questions short and concrete.
+
+If the problem is clear enough to analyze, set "is_ambiguous" to false and leave "clarifying_questions" empty.
+
 Return ONLY valid JSON matching this schema:
 {
   "problem_summary": "string",
@@ -15,7 +26,9 @@ Return ONLY valid JSON matching this schema:
   "os_relevant": true,
   "expected_complexity": 1,
   "search_queries": ["string"],
-  "potential_one_liner": "string or null"
+  "potential_one_liner": "string or null",
+  "is_ambiguous": false,
+  "clarifying_questions": []
 }
 Be aggressive about low complexity for common utility tasks.
 """
@@ -128,6 +141,62 @@ def _one_liner(problem: str) -> str | None:
     return None
 
 
+_AMBIGUOUS_SINGLE_TERMS = {
+    "authentication",
+    "authorization",
+    "caching",
+    "database",
+    "deployment",
+    "logging",
+    "messaging",
+    "monitoring",
+    "networking",
+    "security",
+    "storage",
+    "system",
+    "testing",
+    "validation",
+}
+
+_VAGUE_PHRASES = [
+    "build something",
+    "manage data",
+    "managing data",
+    "handle data",
+    "some kind of",
+    "a thing that",
+    "a tool",
+    "an app",
+    "a system",
+    "a service",
+]
+
+
+def _check_ambiguity(problem: str) -> tuple[bool, list[str]]:
+    """Return (is_ambiguous, clarifying_questions) using heuristics."""
+    text = problem.strip().lower()
+    meaningful_tokens = [
+        t for t in re.findall(r"[a-zA-Z0-9_+-]+", text) if t not in _STOPWORDS and len(t) > 2
+    ]
+
+    is_single_generic = text in _AMBIGUOUS_SINGLE_TERMS or (
+        len(meaningful_tokens) == 1 and meaningful_tokens[0] in _AMBIGUOUS_SINGLE_TERMS
+    )
+    is_vague_phrase = any(phrase in text for phrase in _VAGUE_PHRASES)
+    is_too_short = len(meaningful_tokens) < 2
+
+    if not (is_single_generic or is_vague_phrase or is_too_short):
+        return False, []
+
+    questions = [
+        "What specific behavior or outcome do you need? (e.g. what goes in, what comes out)",
+        "What language or tech stack are you working in?",
+        "What have you already tried or ruled out?",
+        "Are there any constraints? (performance, licensing, no external dependencies, etc.)",
+    ]
+    return True, questions
+
+
 def _build_queries(problem: str, keywords: list[str], language: str) -> list[str]:
     base = " ".join(keywords[:3])
     return [
@@ -140,6 +209,7 @@ def _build_queries(problem: str, keywords: list[str], language: str) -> list[str
 def _heuristic_parse(problem: str, language: str | None = None) -> ParsedIntent:
     resolved_language = _detect_language(problem, language)
     keywords = _extract_keywords(problem)
+    is_ambiguous, clarifying_questions = _check_ambiguity(problem)
     return ParsedIntent(
         problem_summary=problem[:160],
         target_language=resolved_language,
@@ -152,6 +222,8 @@ def _heuristic_parse(problem: str, language: str | None = None) -> ParsedIntent:
         expected_complexity=_heuristic_complexity(problem),
         search_queries=_build_queries(problem, keywords, resolved_language),
         potential_one_liner=_one_liner(problem),
+        is_ambiguous=is_ambiguous,
+        clarifying_questions=clarifying_questions,
     )
 
 

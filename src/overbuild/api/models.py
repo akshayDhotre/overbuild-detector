@@ -51,6 +51,14 @@ class ParsedIntent(BaseModel):
         None,
         description="Possible one-liner solution if applicable",
     )
+    is_ambiguous: bool = Field(
+        default=False,
+        description="True if the problem is too vague to analyze reliably",
+    )
+    clarifying_questions: list[str] = Field(
+        default_factory=list,
+        description="Questions to ask the user when is_ambiguous is True",
+    )
 
 
 class SearchSource(StrEnum):
@@ -101,6 +109,7 @@ class Verdict(StrEnum):
     ADAPT_EXISTING = "ADAPT_EXISTING"
     BUILD_CUSTOM = "BUILD_CUSTOM"
     JUST_USE_A_ONE_LINER = "JUST_USE_A_ONE_LINER"
+    NEEDS_CLARIFICATION = "NEEDS_CLARIFICATION"
 
 
 class ExistingSolution(BaseModel):
@@ -132,14 +141,18 @@ class AnalyzeResponse(BaseModel):
     """Full response payload for API/CLI/MCP."""
 
     verdict: Verdict
-    overbuild_score: OverBuildScore
+    overbuild_score: OverBuildScore | None = None
     summary: str
-    existing_solutions: list[ExistingSolution]
+    existing_solutions: list[ExistingSolution] = Field(default_factory=list)
     one_liner: str | None = None
     if_you_must_build: str | None = None
+    clarifying_questions: list[str] = Field(
+        default_factory=list,
+        description="Returned when verdict is NEEDS_CLARIFICATION",
+    )
 
-    sources_searched: list[SearchSource]
-    total_results_found: int
+    sources_searched: list[SearchSource] = Field(default_factory=list)
+    total_results_found: int = 0
     search_time_ms: int
     llm_cost_usd: float
     request_id: str

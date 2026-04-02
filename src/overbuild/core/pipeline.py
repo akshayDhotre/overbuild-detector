@@ -1,7 +1,7 @@
 import time
 import uuid
 
-from overbuild.api.models import AnalyzeRequest, AnalyzeResponse
+from overbuild.api.models import AnalyzeRequest, AnalyzeResponse, Verdict
 from overbuild.core.parser import parse_intent
 from overbuild.core.scorer import calculate_overbuild_score
 from overbuild.core.synthesizer import synthesize_recommendation
@@ -21,6 +21,17 @@ async def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
         context=request.context,
     )
     total_llm_cost += parse_cost
+
+    if parsed_intent.is_ambiguous:
+        elapsed_ms = int((time.monotonic() - started) * 1000)
+        return AnalyzeResponse(
+            verdict=Verdict.NEEDS_CLARIFICATION,
+            summary="The problem description is too vague to analyze reliably. Please provide more detail.",
+            clarifying_questions=parsed_intent.clarifying_questions,
+            search_time_ms=elapsed_ms,
+            llm_cost_usd=round(total_llm_cost, 6),
+            request_id=request_id,
+        )
 
     search_results, sources_searched = await search_all_sources(
         queries=parsed_intent.search_queries,
