@@ -7,3 +7,4 @@ __pycache__/
 .env
 eval/results/*.json
 !eval/results/.gitkeep
+.DS_Store

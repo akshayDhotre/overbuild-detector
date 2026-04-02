@@ -5,12 +5,14 @@ Before you build, check if it already exists.
 ![OverBuild Detector Demo](docs/assets/overbuild_detector.gif)
 
 OverBuild Detector analyzes a problem statement and recommends one of:
+
 - `USE_EXISTING`
 - `ADAPT_EXISTING`
 - `BUILD_CUSTOM`
 - `JUST_USE_A_ONE_LINER`
 
 It runs a deterministic pipeline:
+
 1. Parse intent (LLM call #1 with structured output, heuristic fallback).
 2. Search providers in parallel (Libraries.io, GitHub, StackOverflow, npm, Ecosyste.ms).
 3. Deduplicate and rank results deterministically.
@@ -31,7 +33,7 @@ User Problem
 ## Architecture Decisions
 
 | Decision | Choice | Why This Choice | Trade-off |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Orchestration style | Deterministic pipeline (not multi-agent graph) | The flow is fixed and auditable for decision support workloads. | Less flexible for open-ended agent behavior. |
 | Intent + synthesis | 2 LLM stages with structured output | Separates understanding from recommendation and keeps outputs strongly typed. | Two model calls add latency and cost. |
 | Fallback strategy | Heuristic fallback when LLM/API keys are missing | Service remains usable in low-connectivity or low-budget mode. | Lower recommendation quality than full mode. |
@@ -113,7 +115,7 @@ Example:
 overbuild "I need to add rate limiting to my FastAPI endpoints, 100 requests per minute per IP" --language python
 ```
 
-## Usage: API Server (PAI/API Mode)
+## Usage: API Server
 
 1. Install dependencies:
 
@@ -193,6 +195,7 @@ Alternative with `uv`:
 ```
 
 3. Restart your MCP client and call tool:
+
 - Tool: `check_before_building`
 - Minimum input:
 
@@ -246,7 +249,8 @@ python eval/run_eval.py --output eval/results/latest.json
 
 ## API
 
-- `POST /analyze` with:
+`POST /analyze`:
+
 ```json
 {
   "problem": "I need rate limiting for FastAPI endpoints",
@@ -254,6 +258,7 @@ python eval/run_eval.py --output eval/results/latest.json
   "context": "100 req/min per IP"
 }
 ```
+
 - `GET /health`
 - `GET /metrics`
 
@@ -268,12 +273,18 @@ pytest -v
 
 - CI workflow: lint, format check, mypy, pytest.
 - Deploy gate: pytest + docker build on `main`.
-- Railway auto-deploy should be connected to repository for production URL.
 
-## Deployment note
+## Deployment
 
-Terraform in `infra/terraform/` targets AWS ECS Fargate for production-scale deployment.
-Current intended personal deployment target is Railway for cost efficiency.
+- [Render](docs/deploy_render.md) — recommended for personal and portfolio hosting (free tier available).
+- Railway — alternative PaaS option; connect repo for auto-deploy.
+- AWS ECS Fargate — production-scale; Terraform config in `infra/terraform/`.
+
+## Enterprise Enhancements
+
+OverBuild Detector can be extended into an enterprise-grade tool with access to internal codebases, private package registries, CI/CD gates, compliance layers, and org-wide analytics.
+
+See [docs/enterprise_enhancements.md](docs/enterprise_enhancements.md) for the full guide — including architecture notes on where each enhancement plugs into the existing pipeline.
 
 ## Future Enhancements (Planned)
 
@@ -329,3 +340,10 @@ Current intended personal deployment target is Railway for cost efficiency.
 6. Data contracts and API shape:
    - `src/overbuild/api/models.py`
    - Add fields like confidence, evidence breakdown, and recommendation rationale.
+
+## License
+
+Apache License 2.0 — free to use and build on, with attribution required.
+See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+Original concept and architecture by **Akshay Dhotre** ([@akshayDhotre](https://github.com/akshayDhotre)).
